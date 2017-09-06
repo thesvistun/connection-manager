@@ -1,0 +1,15 @@
+1. A Manager stores Connections and associates them with Connection's Owner, so Connection's Owner may get his Connection any time.
+
+2. The goal of the Connection is returning of html-page located on proper URL.
+
+3. Connections can be proceed in parallel.
+
+4. Connections are established through a Proxy.
+
+5. Proxies must be gotten from some web-source of data of currently available proxies.
+
+6. User may set source of proxies himself.
+
+7. A Proxy is considered to be a bad one if an attempt to establish a connection with a web resource ends with error or with a bad response.
+
+8. Templates of a good response could be passed to a Connection.

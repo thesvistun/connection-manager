@@ -1,0 +1,21 @@
+1. User sets URL which html-page he needs to get.
+
+    1.1 The Connection Manager initializes Common Proxy List which copies will be used.
+
+2. The Connection Manager creates a Connection to process the URL.
+
+3. Connection gets a Proxy from its copy of the Common Proxy List which last usage time corresponds arranged period.
+
+    3.1 Connection waits for free Proxy if there are other active threads within it and no free Proxy available.
+
+    3.2 If all Proxies were placed into the Bad Proxy List, then Connection supplies additional Proxies to the Common Proxy List.
+
+4. Connection tries to get the HTML-page located by the URL.
+
+    4.1 Connection sets current time as the Proxy usage time and places it into the Bad Proxy List if it unable to get the HTML-page with the Proxy after arranged number of attempts.
+
+    4.2 Back to step 3.
+
+5. Connection stores the HTML-page in its List of Results.
+
+6. Connection sets current time as the Proxy usage time and releases the Proxy back to its copy of the Common Proxies List.
