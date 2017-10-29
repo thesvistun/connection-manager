@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<config>
+    <connection-manager>
+        <proxies>
+            <proxy-source>
+                <url>http://proxydb.net?protocol=http</url>
+                <offset>offset</offset>
+            </proxy-source>
+        </proxies>
+    </connection-manager>
+</config>
