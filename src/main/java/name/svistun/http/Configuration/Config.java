@@ -25,7 +25,10 @@
 package name.svistun.http.Configuration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import name.svistun.http.ProxySource;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
@@ -46,7 +49,14 @@ public class Config {
         for (int i = 0; i < proxies.size(); i++) {
             String url = config.getString(String.format("%s(%s).%s", ConfigProps.PROXY_SOURCE_KEY, i, ConfigProps.URL));
             String offset = config.getString(String.format("%s(%s).%s", ConfigProps.PROXY_SOURCE_KEY, i, ConfigProps.OFFSET));
-            ProxySource proxySource = new ProxySource(url, offset);
+            Map<String, String> headers = new HashMap<>();
+            List<Object> headerNames = config.getList(ConfigProps.HEADER_NAME_KEY);
+            for (int j = 0; j < headerNames.size(); j++) {
+                String name = config.getString(String.format("%s(%s).%s", ConfigProps.HEADER_KEY, j, ConfigProps.HEADER_NAME));
+                String value = config.getString(String.format("%s(%s).%s", ConfigProps.HEADER_KEY, j, ConfigProps.HEADER_VALUE));
+                headers.put(name, value);
+            }
+            ProxySource proxySource = new ProxySource(url, offset, headers);
             log.debug(proxySource);
             proxySources.add(proxySource);
         }

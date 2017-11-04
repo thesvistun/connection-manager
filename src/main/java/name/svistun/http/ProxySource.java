@@ -22,19 +22,38 @@
  * SOFTWARE.
  */
 
-package name.svistun.http.Configuration;
+package name.svistun.http;
 
-public interface ConfigProps {
-    String ROOT = "connection-manager";
-    String PROXIES = "proxies";
-    String PROXIES_KEY = String.format("%s.%s",ROOT, PROXIES);
-    String PROXY_SOURCE = "proxy-source";
-    String PROXY_SOURCE_KEY = String.format("%s.%s",PROXIES_KEY, PROXY_SOURCE);
-    String URL = "url";
-    String URL_KEY = String.format("%s.%s", PROXY_SOURCE_KEY, URL);
-    String OFFSET = "offset";
-    String HEADER_KEY = String.format("%s.%s", PROXY_SOURCE_KEY, "headers.header");
-    String HEADER_NAME = "name";
-    String HEADER_VALUE = "value";
-    String HEADER_NAME_KEY = String.format("%s.%s",HEADER_KEY, HEADER_NAME);
+import java.util.Map;
+
+public class ProxySource {
+    private String url;
+    private String offsetStr;
+    private Map<String, String> headers;
+
+    public ProxySource(String url, String offsetStr, Map<String, String> headers) {
+        this.url = url;
+        this.offsetStr = offsetStr;
+        this.headers = headers;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public String getOffsetStr() {
+        return offsetStr;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    @Override
+    public String toString() {
+        return "ProxySource{" +
+                "url='" + url + '\'' +
+                ", offsetStr='" + offsetStr + '\'' +
+                '}';
+    }
 }

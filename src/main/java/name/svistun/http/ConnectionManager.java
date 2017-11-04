@@ -68,8 +68,9 @@ public class ConnectionManager {
             log.debug(String.format("Processing: %s", proxySource));
             int attemptsLimit = 5;
             org.jsoup.Connection connection = Jsoup.connect(proxySource.getUrl());
-            connection.header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0");
-            connection.header("Accept-Language", "ru,en-US;q=0.7,en;q=0.3");
+            for (String name : proxySource.getHeaders().keySet()) {
+                connection.header(name, proxySource.getHeaders().get(name));
+            }
             try {
                 byte count = 0;
                 Document doc = null;

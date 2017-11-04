@@ -5,6 +5,16 @@
             <proxy-source>
                 <url>http://proxydb.net?protocol=http</url>
                 <offset>offset</offset>
+                <headers>
+                    <header>
+                        <name>User-Agent</name>
+                        <value>Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0</value>
+                    </header>
+                    <header>
+                        <name>Accept-Language</name>
+                        <value>ru,en-US;q=0.7,en;q=0.3</value>
+                    </header>
+                </headers>
             </proxy-source>
         </proxies>
     </connection-manager>
