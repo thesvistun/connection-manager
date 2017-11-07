@@ -24,17 +24,22 @@
 
 package name.svistun.http;
 
+import java.util.List;
 import java.util.Map;
+
+import name.svistun.http.Processing.Step;
 
 public class ProxySource {
     private String url;
     private String offsetStr;
     private Map<String, String> headers;
+    private List<Step> steps;
 
-    public ProxySource(String url, String offsetStr, Map<String, String> headers) {
+    public ProxySource(String url, String offsetStr, Map<String, String> headers, List<Step> steps) {
         this.url = url;
         this.offsetStr = offsetStr;
         this.headers = headers;
+        this.steps = steps;
     }
 
     public Map<String, String> getHeaders() {
@@ -47,6 +52,10 @@ public class ProxySource {
 
     public String getUrl() {
         return url;
+    }
+
+    public List<Step> getSteps() {
+        return steps;
     }
 
     @Override

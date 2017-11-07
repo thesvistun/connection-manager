@@ -24,24 +24,18 @@
 
 package name.svistun.http;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import name.svistun.http.Configuration.Config;
+import name.svistun.http.Processing.Processor;
 
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 public class ConnectionManager {
     Config config;
@@ -88,39 +82,12 @@ public class ConnectionManager {
                     log.warn(String.format("Limit is exceeded: %s", proxySource));
                     continue;
                 }
-                Elements elements = doc.select("table > tbody > tr > td > script");
-                ScriptEngineManager factory = new ScriptEngineManager();
-                ScriptEngine engine = factory.getEngineByName("JavaScript");
-                for (Element element : elements) {
-                    StringBuilder sb = new StringBuilder();
-                    Pattern pattern = Pattern.compile("^document\\.write\\(.+?>'\\s\\+\\s(.+?)\\s\\+\\s'</a>'\\);$");
-                    for (String line : element.data().split("\n")) {
-                        line = line.trim();
-                        if (line.isEmpty() || line.matches("proxies\\.push\\(.+\\);")) {
-                            continue;
-                        }
-                        Matcher matcher = pattern.matcher(line);
-                        if (matcher.matches()) {
-                            sb.append("var result = ").append(matcher.group(1)).append("; ").append("result;");
-                        } else sb.append(line).append(System.lineSeparator());
-                    }
-                    log.debug("Script:" + System.lineSeparator() + sb.toString());
-                    String result = (String) engine.eval(sb.toString());
-                    log.debug("Result of execution: " + result);
-                    pattern = Pattern.compile("((:?\\d{1,3}.?){4}):(\\d+)");
-                    Matcher matcher = pattern.matcher(result);
-                    if (matcher.matches()) {
-                        String ip = matcher.group(1);
-                        int port = Integer.parseInt(matcher.group(2));
-                        Proxy proxy = new Proxy(ip, port);
-                        log.debug(String.format("Add %s to the Common Proxy List", proxy));
-                        proxies.add(proxy);
-                    }
-                }
+                Processor processor = new Processor();
+                proxies = (Set<Proxy>) processor.process(proxySource.getSteps(), doc);
             } catch (HttpStatusException e) {
                 log.error(String.format("HttpStatusException when init proxies. Message: %s", e.getMessage()));
                 throw new ConnectionException(e.toString());
-            } catch (IOException | ScriptException e) {
+            } catch (IOException e) {
                 throw new ConnectionException(e.toString());
             }
         }

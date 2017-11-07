@@ -37,4 +37,9 @@ public interface ConfigProps {
     String HEADER_NAME = "name";
     String HEADER_VALUE = "value";
     String HEADER_NAME_KEY = String.format("%s.%s",HEADER_KEY, HEADER_NAME);
+    String RETRIEVE = "retrieve";
+    String STEP = "step";
+    String STEP_KEY = String.format("%s.%s.%s",PROXY_SOURCE_KEY, RETRIEVE, STEP);
+    String STEP_TYPE = "type";
+    String STEP_ARG = "arg";
 }

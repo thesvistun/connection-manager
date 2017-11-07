@@ -24,12 +24,11 @@
 
 package name.svistun.http.Configuration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import name.svistun.http.Processing.Step;
 import name.svistun.http.ProxySource;
+
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
@@ -56,7 +55,24 @@ public class Config {
                 String value = config.getString(String.format("%s(%s).%s", ConfigProps.HEADER_KEY, j, ConfigProps.HEADER_VALUE));
                 headers.put(name, value);
             }
-            ProxySource proxySource = new ProxySource(url, offset, headers);
+            List<Step> steps = new LinkedList<>();
+            int stepsNumber = config.getList(String.format("%s.[@%s]", ConfigProps.STEP_KEY, ConfigProps.STEP_TYPE)).size();
+            for (int j = 0; j < stepsNumber; j++) {
+                String type = config.getString(String.format("%s(%s).[@%s]", ConfigProps.STEP_KEY, j, ConfigProps.STEP_TYPE));
+                List<String> args = new LinkedList<>();
+                String arg;
+                int argCount = 1;
+                do {
+                    arg = config.getString(String.format("%s(%s).[@%s_%s]", ConfigProps.STEP_KEY, j, ConfigProps.STEP_ARG, argCount));
+                    if (arg != null) {
+                        args.add(arg);
+                    }
+                    argCount++;
+                } while (arg != null);
+                steps.add(new Step(type, args));
+            }
+
+            ProxySource proxySource = new ProxySource(url, offset, headers, steps);
             log.debug(proxySource);
             proxySources.add(proxySource);
         }
