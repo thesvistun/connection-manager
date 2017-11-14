@@ -83,11 +83,15 @@ public class ConnectionManager {
                     continue;
                 }
                 Processor processor = new Processor();
-                proxies = (Set<Proxy>) processor.process(proxySource.getSteps(), doc);
+                Set<Proxy> _proxies = (Set<Proxy>) processor.process(proxySource.getSteps(), doc);
+                proxySource.updateOffset(_proxies.size());
+                proxies.addAll(_proxies);
             } catch (HttpStatusException e) {
                 log.error(String.format("HttpStatusException when init proxies. Message: %s", e.getMessage()));
+                proxySource.resetOffset();
                 throw new ConnectionException(e.toString());
             } catch (IOException e) {
+                proxySource.resetOffset();
                 throw new ConnectionException(e.toString());
             }
         }

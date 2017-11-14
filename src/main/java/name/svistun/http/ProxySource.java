@@ -32,6 +32,7 @@ import name.svistun.http.Processing.Step;
 public class ProxySource {
     private String url;
     private String offsetStr;
+    private int lastProxiesAmount;
     private Map<String, String> headers;
     private List<Step> steps;
 
@@ -51,11 +52,21 @@ public class ProxySource {
     }
 
     public String getUrl() {
-        return url;
+        return String.format("%s&%s=%s",url, offsetStr, lastProxiesAmount);
     }
 
     public List<Step> getSteps() {
         return steps;
+    }
+
+    public void resetOffset() {
+        lastProxiesAmount = 0;
+    }
+
+    public void updateOffset(int proxiesAmount) {
+        if (lastProxiesAmount > proxiesAmount) {
+            lastProxiesAmount = 0;
+        } else lastProxiesAmount += proxiesAmount;
     }
 
     @Override
