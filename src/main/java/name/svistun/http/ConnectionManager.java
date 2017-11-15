@@ -24,18 +24,12 @@
 
 package name.svistun.http;
 
-import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.*;
 
 import name.svistun.http.Configuration.Config;
-import name.svistun.http.Processing.Processor;
 
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.log4j.Logger;
-import org.jsoup.HttpStatusException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 public class ConnectionManager {
     Config config;
@@ -60,40 +54,7 @@ public class ConnectionManager {
         log.info("Init proxies");
         for (ProxySource proxySource : proxySources) {
             log.debug(String.format("Processing: %s", proxySource));
-            int attemptsLimit = 5;
-            org.jsoup.Connection connection = Jsoup.connect(proxySource.getUrl());
-            for (String name : proxySource.getHeaders().keySet()) {
-                connection.header(name, proxySource.getHeaders().get(name));
-            }
-            try {
-                byte count = 0;
-                Document doc = null;
-                do {
-                    try {
-                        doc = connection.get();
-                    } catch (SocketTimeoutException e) {
-                        if (count++ >= 5) {
-                            throw new SocketTimeoutException(e.getMessage());
-                        }
-                    }
-                    attemptsLimit--;
-                } while (null == doc && attemptsLimit > 0);
-                if (attemptsLimit <= 0) {
-                    log.warn(String.format("Limit is exceeded: %s", proxySource));
-                    continue;
-                }
-                Processor processor = new Processor();
-                Set<Proxy> _proxies = (Set<Proxy>) processor.process(proxySource.getSteps(), doc);
-                proxySource.updateOffset(_proxies.size());
-                proxies.addAll(_proxies);
-            } catch (HttpStatusException e) {
-                log.error(String.format("HttpStatusException when init proxies. Message: %s", e.getMessage()));
-                proxySource.resetOffset();
-                throw new ConnectionException(e.toString());
-            } catch (IOException e) {
-                proxySource.resetOffset();
-                throw new ConnectionException(e.toString());
-            }
+            proxies.addAll(proxySource.getProxies());
         }
     }
 }
