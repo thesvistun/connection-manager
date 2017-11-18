@@ -42,6 +42,7 @@ import org.jsoup.nodes.Document;
 public class ProxySource {
     private String url;
     private String offsetStr;
+    private int offset;
     private int lastProxiesAmount;
     private Map<String, String> headers;
     private List<Step> steps;
@@ -56,7 +57,7 @@ public class ProxySource {
 
     public Set<Proxy> getProxies() throws ConnectionException {
         int attemptsLimit = 5;
-        org.jsoup.Connection connection = Jsoup.connect(String.format("%s&%s=%s",url, offsetStr, lastProxiesAmount));
+        org.jsoup.Connection connection = Jsoup.connect(String.format("%s&%s=%s",url, offsetStr, offset));
         for (String name : headers.keySet()) {
             connection.header(name, headers.get(name));
         }
@@ -83,10 +84,10 @@ public class ProxySource {
             updateOffset(proxies.size());
         } catch (HttpStatusException e) {
             log.error(String.format("HttpStatusException when init proxies. Message: %s", e.getMessage()));
-            lastProxiesAmount = 0;
+            offset = 0;
             throw new ConnectionException(e.toString());
         } catch (IOException e) {
-            lastProxiesAmount = 0;
+            offset = 0;
             throw new ConnectionException(e.toString());
         }
         return proxies;
@@ -110,8 +111,12 @@ public class ProxySource {
 
     public void updateOffset(int proxiesAmount) {
         if (lastProxiesAmount > proxiesAmount) {
+            offset = 0;
             lastProxiesAmount = 0;
-        } else lastProxiesAmount += proxiesAmount;
+        } else {
+            offset += proxiesAmount;
+            lastProxiesAmount = proxiesAmount;
+        }
     }
 
     @Override
