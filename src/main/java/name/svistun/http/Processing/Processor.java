@@ -26,22 +26,11 @@ public class Processor {
         Object result = doc;
         for (Step step : steps) {
             switch (step.getType()) {
-                case "select":
-                    if (step.getArg(2).equals("doc")) {
-                        result = select(step.getArg(1), (Document) result);
-                    }
-                    break;
                 case "get_data":
                     result = getData(((List<Element>) result));
                     break;
-                case "remove_line":
-                    result = removeLine((List<String>) result, step);
-                    break;
-                case "replace_line":
-                    result = replaceLine((List<String>) result, step);
-                    break;
-                case "trim_lines":
-                    result = trimLines((List<String>) result);
+                case "get_proxy":
+                    result = getProxy((List<String>) result, step);
                     break;
                 case "js":
                     try {
@@ -50,8 +39,19 @@ public class Processor {
                         //todo
                     }
                     break;
-                case "get_proxy":
-                    result = getProxy((List<String>) result, step);
+                case "remove_line":
+                    result = removeLine((List<String>) result, step);
+                    break;
+                case "replace_line":
+                    result = replaceLine((List<String>) result, step);
+                    break;
+                case "select":
+                    if (step.getArg(2).equals("doc")) {
+                        result = select(step.getArg(1), (Document) result);
+                    }
+                    break;
+                case "trim_lines":
+                    result = trimLines((List<String>) result);
                     break;
             }
         }

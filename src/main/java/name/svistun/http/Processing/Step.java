@@ -51,15 +51,15 @@ public class Step {
         }
     }
 
-    public String getArg(int number) {
+    String getArg(int number) {
         return args.get(number - 1);
     }
 
-    public List<Object> getReplacement() {
+    List<Object> getReplacement() {
         return replacement;
     }
 
-    public String getType() {
+    String getType() {
         return type;
     }
 
@@ -73,11 +73,11 @@ public class Step {
     class MatchGroup {
         private int number;
 
-        public MatchGroup(int number) {
+        MatchGroup(int number) {
             this.number = number;
         }
 
-        public int getNumber() {
+        int getNumber() {
             return number;
         }
     }

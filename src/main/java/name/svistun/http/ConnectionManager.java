@@ -39,9 +39,9 @@ public class ConnectionManager {
     private static final Logger log = Logger.getLogger(ConnectionManager.class.getSimpleName());
 
     public ConnectionManager(String file) throws ConfigurationException {
+        config = new Config(file);
         connections = new HashMap<>();
         proxies = new HashSet<>();
-        config = new Config(file);
         proxySources = config.getProxyServers();
     }
 

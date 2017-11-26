@@ -40,19 +40,23 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 public class ProxySource {
-    private String url;
-    private String offsetStr;
-    private int offset;
-    private int lastProxiesAmount;
     private Map<String, String> headers;
+    private int lastProxiesAmount;
+    private int offset;
+    private String offsetStr;
     private List<Step> steps;
+    private String url;
     private static final Logger log = Logger.getLogger(ProxySource.class.getSimpleName());
 
     public ProxySource(String url, String offsetStr, Map<String, String> headers, List<Step> steps) {
-        this.url = url;
-        this.offsetStr = offsetStr;
         this.headers = headers;
+        this.offsetStr = offsetStr;
         this.steps = steps;
+        this.url = url;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
     public Set<Proxy> getProxies() throws ConnectionException {
@@ -93,10 +97,6 @@ public class ProxySource {
         return proxies;
     }
 
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
     public String getOffsetStr() {
         return offsetStr;
     }
@@ -109,7 +109,15 @@ public class ProxySource {
         return url;
     }
 
-    public void updateOffset(int proxiesAmount) {
+    @Override
+    public String toString() {
+        return "ProxySource{" +
+                "url='" + url + '\'' +
+                ", offsetStr='" + offsetStr + '\'' +
+                '}';
+    }
+
+    private void updateOffset(int proxiesAmount) {
         if (lastProxiesAmount > proxiesAmount) {
             offset = 0;
             lastProxiesAmount = 0;
@@ -117,13 +125,5 @@ public class ProxySource {
             offset += proxiesAmount;
             lastProxiesAmount = proxiesAmount;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "ProxySource{" +
-                "url='" + url + '\'' +
-                ", offsetStr='" + offsetStr + '\'' +
-                '}';
     }
 }
