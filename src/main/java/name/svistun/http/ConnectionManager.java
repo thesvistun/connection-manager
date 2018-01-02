@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 
 public class ConnectionManager {
     Config config;
-    private Map<Object, Connection> connections;
+    private Map<String, Connection> connections;
     private Set<Proxy> proxies;
     private List<ProxySource> proxySources;
     private static final Logger log = Logger.getLogger(ConnectionManager.class.getSimpleName());
@@ -45,16 +45,29 @@ public class ConnectionManager {
         proxySources = config.getProxyServers();
     }
 
+    public Connection getConnections(String id, int threadsLimit, String goodResponseTemplate, List<String> badResponseTemplates) {
+        Connection connection = connections.get(id);
+        if (null == connection) {
+            connection = new Connection(this, threadsLimit, goodResponseTemplate, badResponseTemplates);
+            connections.put(id, connection);
+        } else {
+            connection.setThreadsLimit(threadsLimit);
+            connection.setGoodResponseTemplate(goodResponseTemplate);
+            connection.setBadResponseTemplates(badResponseTemplates);
+        }
+        return connection;
+    }
+
     Set<Proxy> getProxies() {
         return proxies;
     }
 
-    //todo Config file usage
-    void supplyProxies() throws ConnectionException {
+    public Set<Proxy> supplyProxies() throws ConnectionException {
         log.info("Init proxies");
         for (ProxySource proxySource : proxySources) {
             log.debug(String.format("Processing: %s", proxySource));
             proxies.addAll(proxySource.getProxies());
         }
+        return proxies;
     }
 }

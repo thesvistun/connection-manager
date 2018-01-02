@@ -30,16 +30,17 @@ public interface ConfigProps {
     String PROXIES_KEY = String.format("%s.%s",ROOT, PROXIES);
     String PROXY_SOURCE = "proxy-source";
     String PROXY_SOURCE_KEY = String.format("%s.%s",PROXIES_KEY, PROXY_SOURCE);
+    String PROXY_TYPE = "type";
     String URL = "url";
     String URL_KEY = String.format("%s.%s", PROXY_SOURCE_KEY, URL);
     String OFFSET = "offset";
-    String HEADER_KEY = String.format("%s.%s", PROXY_SOURCE_KEY, "headers.header");
+    String HEADER_KEY = "headers.header";
     String HEADER_NAME = "name";
     String HEADER_VALUE = "value";
     String HEADER_NAME_KEY = String.format("%s.%s",HEADER_KEY, HEADER_NAME);
     String RETRIEVE = "retrieve";
     String STEP = "step";
-    String STEP_KEY = String.format("%s.%s.%s",PROXY_SOURCE_KEY, RETRIEVE, STEP);
+    String STEP_KEY = String.format("%s.%s",RETRIEVE, STEP);
     String STEP_TYPE = "type";
     String STEP_ARG = "arg";
 }

@@ -22,22 +22,18 @@ import org.jsoup.select.Elements;
 public class Processor {
     private static final Logger log = Logger.getLogger(Processor.class.getSimpleName());
 
-    public Object process(List<Step> steps, Document doc) {
-        Object result = doc;
+    public Object process(List<Step> steps, Object src) throws ScriptException {
+        Object result = src;
         for (Step step : steps) {
             switch (step.getType()) {
-                case "get_data":
+                case "jsoup_element_list_get_data":
                     result = getData(((List<Element>) result));
                     break;
                 case "get_proxy":
                     result = getProxy((List<String>) result, step);
                     break;
                 case "js":
-                    try {
                         result = js((List<String>) result);
-                    } catch (ScriptException e) {
-                        //todo
-                    }
                     break;
                 case "remove_line":
                     result = removeLine((List<String>) result, step);
@@ -45,7 +41,7 @@ public class Processor {
                 case "replace_line":
                     result = replaceLine((List<String>) result, step);
                     break;
-                case "select":
+                case "json_doc_select":
                     if (step.getArg(2).equals("doc")) {
                         result = select(step.getArg(1), (Document) result);
                     }
@@ -81,6 +77,7 @@ public class Processor {
             for (String line : str.split(System.lineSeparator())) {
                 Matcher matcher = pattern.matcher(line);
                 if (matcher.matches()) {
+                    //todo number of groups take from a config.
                     String ip = matcher.group(1);
                     int port = Integer.parseInt(matcher.group(2));
                     Proxy proxy = new Proxy(ip, port);
@@ -96,7 +93,7 @@ public class Processor {
     private List<String> js(List<String> strList) throws ScriptException {
         List<String> result = new ArrayList<>();
         ScriptEngineManager factory = new ScriptEngineManager();
-        ScriptEngine engine = factory.getEngineByName("JavaScript");
+        ScriptEngine engine = factory.getEngineByName("nashorn");
         for (String str : strList) {
             String exec = (String) engine.eval(str);
             log.debug(exec);

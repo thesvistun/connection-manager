@@ -28,6 +28,8 @@ import java.util.*;
 
 import name.svistun.http.Processing.Step;
 import name.svistun.http.ProxySource;
+import name.svistun.http.ProxySourceFile;
+import name.svistun.http.ProxySourceSite;
 
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
@@ -42,37 +44,49 @@ public class Config {
         config = new Configurations().xml(file);
     }
 
-    public List<ProxySource> getProxyServers() {
+    public List<ProxySource> getProxyServers() throws ConfigurationException {
         List<ProxySource> proxySources = new ArrayList<>();
         List<Object> proxies = config.getList(ConfigProps.URL_KEY);
         for (int i = 0; i < proxies.size(); i++) {
-            String url = config.getString(String.format("%s(%s).%s", ConfigProps.PROXY_SOURCE_KEY, i, ConfigProps.URL));
-            String offset = config.getString(String.format("%s(%s).%s", ConfigProps.PROXY_SOURCE_KEY, i, ConfigProps.OFFSET));
+            String proxySourceKey = String.format("%s(%s)", ConfigProps.PROXY_SOURCE_KEY, i);
+            String type = config.getString(String.format("%s.[@%s]", proxySourceKey, ConfigProps.PROXY_TYPE));
+            String url = config.getString(String.format("%s.%s", proxySourceKey, ConfigProps.URL));
+            String offset = config.getString(String.format("%s.%s", proxySourceKey, ConfigProps.OFFSET));
             Map<String, String> headers = new HashMap<>();
-            List<Object> headerNames = config.getList(ConfigProps.HEADER_NAME_KEY);
+            List<Object> headerNames = config.getList(String.format("%s.%s", proxySourceKey, ConfigProps.HEADER_NAME_KEY));
             for (int j = 0; j < headerNames.size(); j++) {
-                String name = config.getString(String.format("%s(%s).%s", ConfigProps.HEADER_KEY, j, ConfigProps.HEADER_NAME));
-                String value = config.getString(String.format("%s(%s).%s", ConfigProps.HEADER_KEY, j, ConfigProps.HEADER_VALUE));
+                String name = config.getString(String.format("%s.%s(%s).%s", proxySourceKey, ConfigProps.HEADER_KEY, j, ConfigProps.HEADER_NAME));
+                String value = config.getString(String.format("%s.%s(%s).%s", proxySourceKey, ConfigProps.HEADER_KEY, j, ConfigProps.HEADER_VALUE));
                 headers.put(name, value);
             }
             List<Step> steps = new LinkedList<>();
-            int stepsNumber = config.getList(String.format("%s.[@%s]", ConfigProps.STEP_KEY, ConfigProps.STEP_TYPE)).size();
+            int stepsNumber = config.getList(String.format("%s.%s.[@%s]", proxySourceKey, ConfigProps.STEP_KEY, ConfigProps.STEP_TYPE)).size();
             for (int j = 0; j < stepsNumber; j++) {
-                String type = config.getString(String.format("%s(%s).[@%s]", ConfigProps.STEP_KEY, j, ConfigProps.STEP_TYPE));
+                String stepType = config.getString(String.format("%s.%s(%s).[@%s]", proxySourceKey, ConfigProps.STEP_KEY, j, ConfigProps.STEP_TYPE));
                 List<String> args = new LinkedList<>();
                 String arg;
                 int argCount = 1;
                 do {
-                    arg = config.getString(String.format("%s(%s).[@%s_%s]", ConfigProps.STEP_KEY, j, ConfigProps.STEP_ARG, argCount));
+                    arg = config.getString(String.format("%s.%s(%s).[@%s_%s]", proxySourceKey, ConfigProps.STEP_KEY, j, ConfigProps.STEP_ARG, argCount));
                     if (arg != null) {
                         args.add(arg);
                     }
                     argCount++;
                 } while (arg != null);
-                steps.add(new Step(type, args));
+                steps.add(new Step(stepType, args));
             }
+            ProxySource proxySource;
+            switch (type) {
+                case "file":
+                    proxySource = new ProxySourceFile(url, headers, steps);
+                    break;
+                case "site":
+                    proxySource = new ProxySourceSite(url, offset, headers, steps);
+                    break;
+                default:
+                    throw new ConfigurationException(String.format("Type %s not specified", type));
 
-            ProxySource proxySource = new ProxySource(url, offset, headers, steps);
+            }
             log.debug(proxySource);
             proxySources.add(proxySource);
         }

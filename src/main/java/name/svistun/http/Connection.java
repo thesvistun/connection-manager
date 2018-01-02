@@ -24,7 +24,6 @@
 
 package name.svistun.http;
 
-import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -54,8 +53,9 @@ public class Connection {
         threads = new Vector<>();
     }
 
-    Connection(int threadsLimit, String goodResponseTemplate, List<String> badResponseTemplates) throws ConfigurationException {
+    Connection(ConnectionManager connectionManager, int threadsLimit, String goodResponseTemplate, List<String> badResponseTemplates) {
         this();
+        this.connectionManager = connectionManager;
         this.threadsLimit = threadsLimit;
         this.badResponseTemplates = badResponseTemplates;
         this.goodResponseTemplate = goodResponseTemplate;
@@ -106,7 +106,8 @@ public class Connection {
         log.debug(String.format("Getting free proxy from available %s proxies", proxies.size()));
         while (proxies.isEmpty()) {
             try {
-                connectionManager.supplyProxies();
+                proxies.addAll(connectionManager.supplyProxies());
+                //todo if it really needed?
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 log.error(e.getMessage());

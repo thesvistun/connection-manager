@@ -39,8 +39,7 @@ public class ConfigTest
             List<ProxySource> proxySources = config.getProxyServers();
             for (ProxySource proxySource : proxySources) {
                 assertFalse("Proxy servers' data must be set in config.xml",
-                        null == proxySource.getUrl() || proxySource.getUrl().isEmpty() ||
-                        null == proxySource.getOffsetStr() || proxySource.getOffsetStr().isEmpty());
+                        null == proxySource.getUrl() || proxySource.getUrl().isEmpty());
             }
         } catch (ConfigurationException e) {
             System.err.println(e.getMessage());

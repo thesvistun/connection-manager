@@ -2,7 +2,23 @@
 <config>
     <connection-manager>
         <proxies>
-            <proxy-source>
+            <proxy-source type="file">
+                <url>https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list.txt</url>
+                <headers>
+                    <header>
+                        <name>User-Agent</name>
+                        <value>Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0</value>
+                    </header>
+                    <header>
+                        <name>Accept-Language</name>
+                        <value>ru,en-US;q=0.7,en;q=0.3</value>
+                    </header>
+                </headers>
+                <retrieve>
+                    <step type="get_proxy" arg_1="((?:\d{1,3}.?){4}):(\d+).+" arg_2="1" arg_3="2"/>
+                </retrieve>
+            </proxy-source>
+            <!--<proxy-source type="site">
                 <url>http://proxydb.net?protocol=http</url>
                 <offset>offset</offset>
                 <headers>
@@ -16,15 +32,15 @@
                     </header>
                 </headers>
                 <retrieve>
-                    <step type="select" arg_1="table &gt; tbody &gt; tr &gt; td &gt; script" arg_2="doc"/>
-                    <step type="get_data"/>
+                    <step type="json_doc_select" arg_1="table &gt; tbody &gt; tr &gt; td &gt; script" arg_2="doc"/>
+                    <step type="jsoup_element_list_get_data"/>
                     <step type="trim_lines"/>
                     <step type="remove_line" arg_1="proxies\.push\(.+\);"/>
                     <step type="replace_line" arg_1="^document\.write\(.+?&gt;&apos;\s\+\s(.+?)\s\+\s&apos;&lt;/a&gt;&apos;\);$" arg_2="&quot;var result = &quot;1&quot;; result;&quot;"/>
                     <step type="js"/>
-                    <step type="get_proxy" arg_1="((:?\d{1,3}.?){4}):(\d+)" arg_2="1" arg_3="2"/>
+                    <step type="get_proxy" arg_1="((?:\d{1,3}.?){4}):(\d+)" arg_2="1" arg_3="2"/>
                 </retrieve>
-            </proxy-source>
+            </proxy-source>-->
         </proxies>
     </connection-manager>
 </config>
