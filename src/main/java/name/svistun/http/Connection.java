@@ -93,32 +93,26 @@ public class Connection {
 
     synchronized Proxy getProxy() throws ConnectionException {
         log.debug(String.format("Locking for bad proxies (%s item(s)) ready for reuse", badProxies.size()));
-        List<Proxy> _proxis = new ArrayList<>();
-        for (Proxy _proxy : badProxies) {
-            if (new Date().getTime() - _proxy.getLastUsage().getTime() > 12*60*60*1000) {
-                _proxis.add(_proxy);
+        List<Proxy> proxis = new ArrayList<>();
+        for (Proxy proxy : badProxies) {
+            if (new Date().getTime() - proxy.getLastUsage().getTime() > 12*60*60*1000) {
+                proxis.add(proxy);
             }
         }
-        log.debug(String.format("%s proxy(s) are ready for reuse", _proxis.size()));
-        badProxies.removeAll(_proxis);
-        proxies.addAll(_proxis);
+        log.debug(String.format("%s proxy(s) are ready for reuse", proxis.size()));
+        badProxies.removeAll(proxis);
+        this.proxies.addAll(proxis);
 
-        log.debug(String.format("Getting free proxy from available %s proxies", proxies.size()));
-        while (proxies.isEmpty()) {
-            try {
-                proxies.addAll(connectionManager.supplyProxies());
-                //todo if it really needed?
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                log.error(e.getMessage());
-            }
+        log.debug(String.format("Getting free proxy from available %s proxies", this.proxies.size()));
+        while (this.proxies.isEmpty()) {
+            this.proxies.addAll(connectionManager.supplyProxies());
         }
         Proxy proxy = null;
         do {
-            for (Proxy _proxy : proxies) {
+            for (Proxy _proxy : this.proxies) {
                 if (_proxy.getLastUsage() == null || (new Date().getTime() - _proxy.getLastUsage().getTime()) >= 10*1000) {
                     proxy = _proxy;
-                    proxies.remove(proxy);
+                    this.proxies.remove(proxy);
                     break;
                 } else {
                     log.debug(String.format("%s last usage time is newer then %s sec. Skip it.", _proxy, 10));
@@ -133,6 +127,7 @@ public class Connection {
             }
         } while (proxy == null);
         log.debug(String.format("Return %s", proxy));
+        proxy.setLastUsage(new Date());
         return proxy;
     }
 
@@ -179,20 +174,22 @@ public class Connection {
                     connection.proxy(proxy.getIp(), proxy.getPort());
                     try {
                         doc = connection.get();
-                        if (null != badResponseTemplates) {
-                            for (String changeProxyTamplate: badResponseTemplates) {
-                                if (! doc.select(changeProxyTamplate).isEmpty()) {
-                                    attempt = 0;
-                                    doc = null;
-                                    throw new IOException(String.format("Template of bad response found: %s. Change a proxy.", changeProxyTamplate));
+                        if (doc != null) {
+                            if (null != badResponseTemplates) {
+                                for (String changeProxyTamplate : badResponseTemplates) {
+                                    if (!doc.select(changeProxyTamplate).isEmpty()) {
+                                        attempt = 0;
+                                        doc = null;
+                                        throw new IOException(String.format("Template of bad response found: %s. Change a proxy.", changeProxyTamplate));
+                                    }
                                 }
                             }
-                        }
-                        //todo prevent removing all the proxy because the site really does not return proper page.
-                        if (doc.select(goodResponseTemplate).isEmpty()) {
-                            String message = "Bad response. Document:\n" + doc.toString();
-                            doc = null;
-                            throw new IOException(message);
+                            //todo prevent removing all the proxies because the site really does not return proper page.
+                            if (doc.select(goodResponseTemplate).isEmpty()) {
+                                String message = "Bad response. Document:\n" + doc.toString();
+                                doc = null;
+                                throw new IOException(message);
+                            }
                         }
                     } catch (IOException e) {
                         if (connection.response().statusCode() > 0 && connection.response().statusCode() == 550) {

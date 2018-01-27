@@ -48,6 +48,10 @@ public class Proxy {
         return lastUsage;
     }
 
+    public void setLastUsage(Date lastUsage) {
+        this.lastUsage = lastUsage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

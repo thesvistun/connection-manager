@@ -25,19 +25,41 @@
 package name.svistun.http;
 
 import junit.framework.TestCase;
-
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.junit.Assert;
-import org.junit.Ignore;
+import org.apache.log4j.Logger;
+import org.jsoup.nodes.Document;
 
-@Ignore public class ConnectionManagerTest extends TestCase {
+import java.util.ArrayList;
 
-    public void testSupplyProxies() {
+public class ConnectionTest extends TestCase {
+    public void testGetResult() {
         try {
+            final Logger log = Logger.getLogger(ConnectionTest.class.getSimpleName());
             ConnectionManager connectionManager = new ConnectionManager("src/test/resources/config.xml");
-            connectionManager.supplyProxies();
-            Assert.assertFalse("Common proxies list is empty.", connectionManager.getProxies().isEmpty());
-        } catch (ConfigurationException | ConnectionException e) {
+            Connection connection = connectionManager.getConnections("test.ru", 4, "table[id=paper]", new ArrayList<>());
+            connection.setAttemptAmount(1);
+            connection.setConnectionTimeout(4);
+            String url = "http://oltest.ru/";
+            connection.doRequest(url);
+            int attempts = 10;
+            int count = attempts;
+            int timeout = 5*1000;
+            Document doc;
+            do {
+                doc = connection.getResult();
+                count--;
+                if (null == doc) {
+                    log.warn(String.format("Failed. Waiting %s secs", timeout/1000));
+                    try {
+                        Thread.sleep(timeout);
+                    } catch (InterruptedException e) {
+                        log.error(e.getClass().getSimpleName() + ": " + e.getMessage());
+                    }
+                }
+            } while (null == doc && count > 0);
+            assertFalse(String.format("Unable to get document of %s after %s attempts", url, attempts), null == doc);
+            log.info("Success");
+        } catch (ConfigurationException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
