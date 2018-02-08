@@ -24,13 +24,10 @@
 
 package name.svistun.http;
 
-import name.svistun.http.Processing.Processor;
-import name.svistun.http.Processing.Step;
 import org.apache.log4j.Logger;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 
-import javax.script.ScriptException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -66,11 +63,13 @@ public class ProxySourceFile extends ProxySource {
                 return proxies;
             }
             Processor processor = new Processor();
-            proxies = (Set<Proxy>) (processor.process(steps, Arrays.asList(fileContentStr.split(System.lineSeparator()))));
+            for (String item : processor.process(steps, Arrays.asList(fileContentStr.split(System.lineSeparator())))) {
+                proxies.add(new Proxy(item.split(":")[0], Integer.parseInt(item.split(":")[1])));
+            }
         } catch (HttpStatusException e) {
             log.error(String.format("HttpStatusException when init proxies. Message: %s", e.getMessage()));
             throw new ConnectionException(e.toString());
-        } catch (IOException | ScriptException e) {
+        } catch (IOException | ProcessorException e) {
             throw new ConnectionException(e.toString());
         }
         return proxies;

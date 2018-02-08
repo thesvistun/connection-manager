@@ -15,7 +15,7 @@
                     </header>
                 </headers>
                 <retrieve>
-                    <step type="get_proxy" arg_1="((?:\d{1,3}.?){4}):(\d+).+" arg_2="1" arg_3="2"/>
+                    <step type="strings-get_data-strings" arg_1="((?:\d{1,3}.?){4}):(\d+).+" arg_2="1" arg_3="2"/>
                 </retrieve>
             </proxy-source>
             <!--<proxy-source type="site">
@@ -32,12 +32,12 @@
                     </header>
                 </headers>
                 <retrieve>
-                    <step type="json_doc_select" arg_1="table &gt; tbody &gt; tr &gt; td &gt; script" arg_2="doc"/>
-                    <step type="jsoup_element_list_get_data"/>
-                    <step type="trim_lines"/>
-                    <step type="remove_line" arg_1="proxies\.push\(.+\);"/>
-                    <step type="replace_line" arg_1="^document\.write\(.+?&gt;&apos;\s\+\s(.+?)\s\+\s&apos;&lt;/a&gt;&apos;\);$" arg_2="&quot;var result = &quot;1&quot;; result;&quot;"/>
-                    <step type="js"/>
+                    <step type="json_doc-select-strings" arg_1="table &gt; tbody &gt; tr &gt; td &gt; script" arg_2="doc"/>
+                    <step type="jsoup_elements-get_data-strings"/>
+                    <step type="strings-trim_lines-strings"/>
+                    <step type="strings-remove_line-strings" arg_1="proxies\.push\(.+\);"/>
+                    <step type="strings-replace_line-strings" arg_1="^document\.write\(.+?&gt;&apos;\s\+\s(.+?)\s\+\s&apos;&lt;/a&gt;&apos;\);$" arg_2="&quot;var result = &quot;1&quot;; result;&quot;"/>
+                    <step type="strings-js-strings"/>
                     <step type="get_proxy" arg_1="((?:\d{1,3}.?){4}):(\d+)" arg_2="1" arg_3="2"/>
                 </retrieve>
             </proxy-source>-->

@@ -31,15 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import name.svistun.http.Processing.Processor;
-import name.svistun.http.Processing.Step;
-
 import org.apache.log4j.Logger;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-
-import javax.script.ScriptException;
 
 public class ProxySourceSite extends ProxySource {
     private int offset;
@@ -76,13 +71,15 @@ public class ProxySourceSite extends ProxySource {
                 return proxies;
             }
             Processor processor = new Processor();
-            proxies = (Set<Proxy>) processor.process(steps, doc);
+            for (String item : processor.process(steps, doc)) {
+                proxies.add(new Proxy(item.split(":")[0], Integer.parseInt(item.split(":")[1])));
+            }
             updateOffset(proxies.size());
         } catch (HttpStatusException e) {
             log.error(String.format("HttpStatusException when init proxies. Message: %s", e.getMessage()));
             offset = 0;
             throw new ConnectionException(e.toString());
-        } catch (IOException | ScriptException e) {
+        } catch (IOException | ProcessorException e) {
             offset = 0;
             throw new ConnectionException(e.toString());
         }

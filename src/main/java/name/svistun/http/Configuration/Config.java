@@ -26,7 +26,7 @@ package name.svistun.http.Configuration;
 
 import java.util.*;
 
-import name.svistun.http.Processing.Step;
+import name.svistun.http.Step;
 import name.svistun.http.ProxySource;
 import name.svistun.http.ProxySourceFile;
 import name.svistun.http.ProxySourceSite;
