@@ -6,7 +6,7 @@
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>connection-manager</name>
-  <url>http://maven.apache.org</url>
+  <url>http://github.com/thesvistun/connection-manager</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
