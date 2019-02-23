@@ -38,18 +38,18 @@ public class ConnectionTest extends TestCase {
             ConnectionManager connectionManager = new ConnectionManager("src/test/resources/config.xml");
             Connection connection = connectionManager.getConnections("test.ru", 4, "table[id=paper]", new ArrayList<>());
             connection.setAttemptAmount(1);
-            connection.setConnectionTimeout(4);
+            connection.setConnectionTimeout(4000);
             String url = "http://oltest.ru/";
             connection.doRequest(url);
             int attempts = 10;
             int count = attempts;
-            int timeout = 5*1000;
+            int timeout = 5000;
             Document doc;
             do {
                 doc = connection.getResult();
                 count--;
                 if (null == doc) {
-                    log.warn(String.format("Failed. Waiting %s secs", timeout/1000));
+                    log.warn(String.format("Failed. Waiting %s milliseconds", timeout));
                     try {
                         Thread.sleep(timeout);
                     } catch (InterruptedException e) {

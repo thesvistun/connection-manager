@@ -46,7 +46,7 @@ public class Connection {
 
     private Connection() {
         attemptAmount = 4;
-        connectionTimeout = 7;
+        connectionTimeout = 7000;
         proxies = new HashSet<>();
         badProxies = new HashSet<>();
         results = new Vector<>();
@@ -166,7 +166,7 @@ public class Connection {
             try {
                 Proxy proxy = getProxy();
                 org.jsoup.Connection connection = Jsoup.connect(url);
-                connection.timeout(connectionTimeout * 1000);
+                connection.timeout(connectionTimeout);
                 connection.header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0");
                 connection.header("Accept-Language", "ru,en-US;q=0.7,en;q=0.3");
                 int attempt = attemptAmount;
