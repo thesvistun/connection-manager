@@ -92,7 +92,7 @@ public class Connection {
     }
 
     synchronized Proxy getProxy() throws ConnectionException {
-        log.debug(String.format("Locking for bad proxies (%s item(s)) ready for reuse", badProxies.size()));
+        log.debug(String.format("Locking for bad proxies (%s item(s)) kept for reuse", badProxies.size()));
         List<Proxy> proxis = new ArrayList<>();
         for (Proxy proxy : badProxies) {
             if (new Date().getTime() - proxy.getLastUsage().getTime() > 12*60*60*1000) {
