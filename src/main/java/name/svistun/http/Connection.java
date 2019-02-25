@@ -43,7 +43,6 @@ public class Connection {
     private int connectionTimeout;
     private static final Logger log = Logger.getLogger(Connection.class.getSimpleName());
 
-
     private Connection() {
         attemptAmount = 4;
         connectionTimeout = 7000;
@@ -51,6 +50,13 @@ public class Connection {
         badProxies = new HashSet<>();
         results = new Vector<>();
         threads = new Vector<>();
+    }
+
+    public void cancel() {
+        for (ConnectionThread connectionThread : threads) {
+            log.debug(String.format("Cancelling thread processing url %s", connectionThread.url));
+            connectionThread.cancel();
+        }
     }
 
     Connection(ConnectionManager connectionManager, int threadsLimit, String goodResponseTemplate, List<String> badResponseTemplates) {
@@ -170,7 +176,7 @@ public class Connection {
                 connection.header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0");
                 connection.header("Accept-Language", "ru,en-US;q=0.7,en;q=0.3");
                 int attempt = attemptAmount;
-                while (doc == null) {
+                while (doc == null && ! cancelled) {
                     connection.proxy(proxy.getIp(), proxy.getPort());
                     try {
                         doc = connection.get();

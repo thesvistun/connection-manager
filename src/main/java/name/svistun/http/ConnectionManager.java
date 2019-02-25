@@ -45,6 +45,11 @@ public class ConnectionManager {
         proxySources = config.getProxyServers();
     }
 
+    public void cancelConnection(String id) {
+        log.debug(String.format("Cancelling connection %s", id));
+        connections.get(id).cancel();
+    }
+
     public Connection getConnections(String id, int threadsLimit, String goodResponseTemplate, List<String> badResponseTemplates) {
         Connection connection = connections.get(id);
         if (null == connection) {
