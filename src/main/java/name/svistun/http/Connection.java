@@ -79,6 +79,14 @@ public class Connection {
         return true;
     }
 
+    public int getMostFailedAttempsAmount() {
+        int result = 0;
+        for (ConnectionThread connectionThread : threads) {
+            result = connectionThread.getFailedAttemptsAmount() > result ? connectionThread.getFailedAttemptsAmount() : result;
+        }
+        return result;
+    }
+
     public Document getResult() {
         if (results.isEmpty()) {
             return null;
@@ -150,6 +158,7 @@ public class Connection {
     }
 
     private class ConnectionThread extends Thread {
+        private int failedAttemptsAmount;
         private String url;
         private boolean cancelled;
 
@@ -164,6 +173,10 @@ public class Connection {
 
         void cancel() {
             cancelled = true;
+        }
+
+        public int getFailedAttemptsAmount() {
+            return failedAttemptsAmount;
         }
 
         @Override
@@ -181,6 +194,7 @@ public class Connection {
                     try {
                         doc = connection.get();
                         if (doc != null) {
+                            attemptAmount = 0;
                             if (null != badResponseTemplates) {
                                 for (String changeProxyTamplate : badResponseTemplates) {
                                     if (!doc.select(changeProxyTamplate).isEmpty()) {
@@ -196,6 +210,8 @@ public class Connection {
                                 doc = null;
                                 throw new IOException(message);
                             }
+                        } else {
+                            attemptAmount++;
                         }
                     } catch (IOException e) {
                         if (connection.response().statusCode() > 0 && connection.response().statusCode() == 550) {
