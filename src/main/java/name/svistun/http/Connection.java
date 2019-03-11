@@ -106,18 +106,19 @@ public class Connection {
     }
 
     synchronized Proxy getProxy() throws ConnectionException {
-        log.debug(String.format("Locking for bad proxies (%s item(s)) kept for reuse", badProxies.size()));
+        log.debug(String.format("Looking for bad proxies (%s item(s)) kept for reuse", badProxies.size()));
         List<Proxy> proxis = new ArrayList<>();
         for (Proxy proxy : badProxies) {
             if (new Date().getTime() - proxy.getLastUsage().getTime() > 12*60*60*1000) {
                 proxis.add(proxy);
             }
         }
-        log.debug(String.format("%s proxy(s) are ready for reuse", proxis.size()));
+        log.debug(String.format("%s proxy(s) waited enough and now are ready to be reused", proxis.size()));
         badProxies.removeAll(proxis);
         this.proxies.addAll(proxis);
 
-        log.debug(String.format("Getting free proxy from available %s proxies", this.proxies.size()));
+        log.debug(String.format("Obtaining a free proxy among available %s proxies", this.proxies.size()));
+        if (this.proxies.isEmpty()) log.debug("Proxies list is empty got them from proxy provider.");
         while (this.proxies.isEmpty()) {
             this.proxies.addAll(connectionManager.supplyProxies());
         }
@@ -129,7 +130,7 @@ public class Connection {
                     this.proxies.remove(proxy);
                     break;
                 } else {
-                    log.debug(String.format("%s last usage time is newer then %s sec. Skip it.", _proxy, 10));
+                    log.debug(String.format("%s is waiting too few time (should %s sec at least). Skip it.", _proxy, 10));
                 }
             }
             if (null == proxy) {
@@ -140,7 +141,7 @@ public class Connection {
                 }
             }
         } while (proxy == null);
-        log.debug(String.format("Return %s", proxy));
+        log.debug(String.format("%s chosen to be used", proxy));
         proxy.setLastUsage(new Date());
         return proxy;
     }
@@ -173,6 +174,7 @@ public class Connection {
 
         void cancel() {
             cancelled = true;
+            log.info(String.format("Thread cancelled. Url %s", url));
         }
 
         public int getFailedAttemptsAmount() {
@@ -242,7 +244,9 @@ public class Connection {
                         attempt = attemptAmount;
                     }
                 }
-                log.debug(String.format("Connecting URL [%s] SUCCESS. %s", url, proxy));
+                if (! cancelled) {
+                    log.debug(String.format("Connecting URL [%s] SUCCESS. %s", url, proxy));
+                }
                 proxies.add(proxy);
                 results.add(doc);
                 log.info("Thread number before remove: " + threads.size());
